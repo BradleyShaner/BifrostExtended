@@ -32,6 +32,8 @@ namespace BifrostExtended
 
         public event UserConnected OnUserConnected;
 
+        public event UserDisconnected OnUserDisconnected;
+
         public bool IsRunning { get; private set; }
 
         public Server(int maxConnections = 100)
@@ -287,7 +289,7 @@ namespace BifrostExtended
         {
             ClientData cd = GetClientFromLink(link);
             cd.Connected = false;
-            OnUserConnected?.Invoke(cd);
+            OnUserDisconnected?.Invoke(cd);
             CleanupClient(cd);
         }
 

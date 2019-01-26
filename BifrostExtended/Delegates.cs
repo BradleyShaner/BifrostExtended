@@ -17,6 +17,6 @@ namespace BifrostExtended
         // Server
         public delegate void UserConnected(ClientData client);
 
-        public delegate void UserDisconnected(ClientData client, string reason);
+        public delegate void UserDisconnected(ClientData client);
     }
 }
