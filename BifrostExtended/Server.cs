@@ -49,6 +49,11 @@ namespace BifrostExtended
             Bifrost.LogManager.SetMinimumLogLevel((Bifrost.SerilogLogLevel)logLevel);
         }
 
+        public void IgnoreLogClass(string ignoredClass)
+        {
+            Bifrost.LogManager.IgnoreLogClass(ignoredClass);
+        }
+
         public void BroadcastMessage(Dictionary<string, byte[]> Store, AuthState minimumAuthState = AuthState.Authenticated, ClientData skipUser = null)
         {
             Message msg = new Message(MessageType.Data, 0x01);

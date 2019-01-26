@@ -48,6 +48,11 @@ namespace BifrostExtended
             Bifrost.LogManager.SetMinimumLogLevel((Bifrost.SerilogLogLevel)logLevel);
         }
 
+        public void IgnoreLogClass(string ignoredClass)
+        {
+            Bifrost.LogManager.IgnoreLogClass(ignoredClass);
+        }
+
         public void Connect(string host, int port)
         {
             if (IsConnected)
