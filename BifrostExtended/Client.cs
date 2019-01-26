@@ -37,10 +37,15 @@ namespace BifrostExtended
 
         public Client()
         {
-            Bifrost.LogManager.SetMinimumLogLevel(SerilogLogLevel.Debug);
+            Bifrost.LogManager.SetMinimumLogLevel(Bifrost.SerilogLogLevel.Information);
             Bifrost.EventSink.OnLogEvent += EventSink_OnLogEvent;
 
             Bifrost.CertManager.GenerateCertificateAuthority();
+        }
+
+        public void SetLogLevel(BifrostExtended.SerilogLogLevel logLevel)
+        {
+            Bifrost.LogManager.SetMinimumLogLevel((Bifrost.SerilogLogLevel)logLevel);
         }
 
         public void Connect(string host, int port)

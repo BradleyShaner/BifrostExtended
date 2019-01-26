@@ -36,12 +36,17 @@ namespace BifrostExtended
 
         public Server(int maxConnections = 100)
         {
-            Bifrost.LogManager.SetMinimumLogLevel(SerilogLogLevel.Debug);
+            Bifrost.LogManager.SetMinimumLogLevel(Bifrost.SerilogLogLevel.Debug);
             Bifrost.EventSink.OnLogEvent += EventSink_OnLogEvent;
 
             Bifrost.CertManager.GenerateCertificateAuthority();
 
             MaxConnections = maxConnections;
+        }
+
+        public void SetLogLevel(BifrostExtended.SerilogLogLevel logLevel)
+        {
+            Bifrost.LogManager.SetMinimumLogLevel((Bifrost.SerilogLogLevel)logLevel);
         }
 
         public void BroadcastMessage(Dictionary<string, byte[]> Store, AuthState minimumAuthState = AuthState.Authenticated, ClientData skipUser = null)
@@ -78,7 +83,7 @@ namespace BifrostExtended
             Message message = new Message(MessageType.Data, 0x01);
             message.Store["type"] = Encoding.UTF8.GetBytes(t.Name);
             message.Store["message"] = Encoding.UTF8.GetBytes(serialized);
-            //logger.Debug("Pre encode: " + JsonConvert.SerializeObject(serialized));
+
             lock (_UserListLock)
             {
                 foreach (var user in Clients)
@@ -270,7 +275,6 @@ namespace BifrostExtended
         {
             ClientData cd = GetClientFromLink(link);
             cd.Connected = false;
-            //ClientData copy = (ClientData)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(cd));
             OnUserConnected?.Invoke(cd);
             CleanupClient(cd);
         }
@@ -355,7 +359,6 @@ namespace BifrostExtended
                     continue;
                 }
 
-                logger.Info(Clients.Count + " " + MaxConnections);
                 if (!IsRunning)
                     return;
 
