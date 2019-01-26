@@ -73,7 +73,7 @@ namespace BifrostExtended
                     }
                     catch (Exception ex)
                     {
-                        logger.Error(ex, "Server BroadcastMessage: " + user.ClientName != string.Empty ? user.ClientGuid : user.ClientName);
+                        logger.Trace(ex.Message, "Server BroadcastMessage: " + user.ClientName != string.Empty ? user.ClientGuid : user.ClientName);
                     }
                 }
             }
@@ -103,7 +103,7 @@ namespace BifrostExtended
                     }
                     catch (Exception ex)
                     {
-                        logger.Error(ex, "Server BroadcastMessage: " + user.ClientName != string.Empty ? user.ClientGuid : user.ClientName);
+                        logger.Trace(ex.Message, "Server BroadcastMessage: " + user.ClientName != string.Empty ? user.ClientGuid : user.ClientName);
                     }
                 }
             }
@@ -152,7 +152,7 @@ namespace BifrostExtended
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Server SendMessage");
+                logger.Trace(ex.Message, "Server SendMessage");
                 return false;
             }
             return true;
@@ -174,7 +174,7 @@ namespace BifrostExtended
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Server SendMessage");
+                logger.Trace(ex.Message, "Server SendMessage");
                 return false;
             }
             return true;

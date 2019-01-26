@@ -97,7 +97,7 @@ namespace BifrostExtended
             }
             catch (Exception ex)
             {
-                logger.Error(ex, "Client SendMessage");
+                logger.Trace(ex.Message, "Client SendMessage");
                 return false;
             }
             return true;

@@ -26,7 +26,7 @@ namespace BifrostExtended.Messages
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                logger.Trace(ex.Message);
                 message = null;
             }
 
@@ -45,7 +45,7 @@ namespace BifrostExtended.Messages
             }
             catch (Exception ex)
             {
-                logger.Error(ex);
+                logger.Trace(ex.Message);
                 message = null;
             }
 
