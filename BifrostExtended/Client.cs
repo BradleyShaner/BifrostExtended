@@ -53,7 +53,7 @@ namespace BifrostExtended
             Bifrost.LogManager.IgnoreLogClass(ignoredClass);
         }
 
-        public void Connect(string host, int port)
+        public bool Connect(string host, int port)
         {
             if (IsConnected)
                 Stop();
@@ -74,6 +74,12 @@ namespace BifrostExtended
                             TaskCreationOptions.None,
                             TaskScheduler.Default);
             }
+
+            if (IsConnected || IsConnecting)
+                return true;
+            else
+                return false;
+
         }
 
         public EncryptedLink GetServerFromLink(ClientLink clientLink)

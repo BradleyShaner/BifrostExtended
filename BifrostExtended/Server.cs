@@ -180,12 +180,18 @@ namespace BifrostExtended
             return true;
         }
 
-        public void Start(int listenPort)
+        public bool Start(int listenPort)
         {
             serverCancellationToken = serverCancellationTokenSource.Token;
-
-            this.listener = new TcpListener(IPAddress.Any, listenPort);
-            this.listener.Start();
+            try
+            {
+                this.listener = new TcpListener(IPAddress.Any, listenPort);
+                this.listener.Start();
+            } catch (Exception ex)
+            {
+                logger.Error(ex, "Unable to start server!");
+                return false;
+            }
 
             Task.Factory.StartNew(() => KeyManager.MonitorKeyGeneration(serverCancellationToken),
                     serverCancellationToken,
@@ -199,6 +205,7 @@ namespace BifrostExtended
 
             IsRunning = true;
             logger.Info($"Listening for clients on port {listenPort}..");
+            return true;
         }
 
         public void Stop()
