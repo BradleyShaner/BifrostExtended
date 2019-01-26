@@ -26,20 +26,20 @@ Server side:
 
 		static void Main(string[] args)
         {
-			//Register our 'ChatMessage' packet handlers
+				//Register our 'ChatMessage' packet handlers
             Handler.RegisterServerMessageType(typeof(ChatMessage), HandleChatMessage);
 
-			//Create a new Server with a 100 connection limit
+				//Create a new Server with a 100 connection limit
             server = new Server(100);
-			//Remember unknown certificates. If false, the Certificate must already be known.
+				//Remember unknown certificates. If false, the Certificate must already be known.
             server.RememberCertificates = true;
-			//Start the server on port 8888
+				//Start the server on port 8888
             server.Start(8888);
-			//Register the Event handlers, not shown in this example
+				//Register the Event handlers, not shown in this example
             server.OnServerDataReceived += Server_OnServerDataReceived;
             server.OnUserConnected += Server_OnUserConnected;
 
-			//Read console input and send a message
+				//Read console input and send a message
             while (true)
             {
                 string input = Console.ReadLine();
@@ -53,13 +53,13 @@ Server side:
 
 		private static void HandleChatMessage(ClientData client, IMessage message)
         {
-			//Convert the Message received to the corret message type
+				//Convert the Message received to the corret message type
             ChatMessage chatMessage = (ChatMessage)message;
 
-			//Print out the message contents
+				//Print out the message contents
             Console.WriteLine(chatMessage.user + " says: " + chatMessage.message);
 
-			//broadcast the received ChatMessage to all 'Unauthenticated' (or greater connected users) except the original client
+				//broadcast the received ChatMessage to all 'Unauthenticated' (or greater connected users) except the original client
             server.BroadcastMessage(message, AuthState.Unauthenticated, client);
         }
 ```
@@ -67,26 +67,26 @@ Server side:
 Client:
 ``` csharp
 
-		//Create our Client class, provided from BifrostExtended
+			//Create our Client class, provided from BifrostExtended
         static Client client;
 		static void Main(string[] args)
         {
-			//Register our 'ChatMessage' packet handlers
+				//Register our 'ChatMessage' packet handlers
             Handler.RegisterClientMessageType(typeof(ChatMessage), HandleChatMessage);
 
-			//Initialize a new Client()
+				//Initialize a new Client()
             client = new Client();
-			//Enable Automatic Reconnection
+				//Enable Automatic Reconnection
             client.AutoReconnect = true;
-			//Remember unknown certificates. If false, the Certificate must already be known.
+				//Remember unknown certificates. If false, the Certificate must already be known.
             client.RememberCertificates = true;
-			//Register the Event handlers, not shown in this example
+				//Register the Event handlers, not shown in this example
             client.OnClientConnectionChange += Client_OnClientConnectionChange;
             client.OnClientDataReceived += Client_OnClientDataReceived;
-			//Connect to server at 127.0.0.1 on port 8888
+				//Connect to server at 127.0.0.1 on port 8888
             client.Connect("127.0.0.1", 8888);
 
-			//Get console input and send a new ChatMessage
+				//Get console input and send a new ChatMessage
             while (true)
             {
                 string input = Console.ReadLine();
@@ -98,7 +98,7 @@ Client:
             }
         }
 		
-		//handle all ChatMessages sent from the Server
+			//handle all ChatMessages sent from the Server
 		private static void HandleChatMessage(Client client, IMessage message)
         {
             ChatMessage chatMessage = (ChatMessage)message;
