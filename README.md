@@ -2,7 +2,7 @@
 Extension library utilizing [BifrostLSF](https://github.com/LostSoulfly/BifrostLSF), which is a modification of the original [Bifrost, by hexafluoride](https://github.com/hexafluoride/Bifrost/).
 
 ## I'm not a professional
-Neither myself or hexafluoride are professionals with anything more than hobbyist experience in networking or cryptology and we do not provide any warranty or guarantee that your data is safe when using BifrostExtended or Bifrost.
+Neither myself or hexafluoride are professionals with anything more than hobbyist experience in networking or cryptography and we do not provide any warranty or guarantee that your data is safe when using BifrostExtended or Bifrost.
 
 ## What is BifrostExtended?
 BifrostExtended adds additional features when used along side of [BifrostLSF](https://github.com/LostSoulfly/BifrostLSF) that hopes to create a seamless client/server library with strong encryption and easy setup. Seriously, ease of use is the #1 priority. With BE, multi-user servers are easy to create with a few lines of code as it leverages Bifrost and BouncyCastle to do the heavy lifting. The server and client is multi-threaded so as to not slow you down. In addition, a simple Message system has been implemented that allows transparent serializing/deserializing network packets as well as adds extras such as Authentication and Privilege levels.
