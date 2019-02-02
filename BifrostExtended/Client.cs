@@ -133,6 +133,10 @@ namespace BifrostExtended
 
         private void ConnectThread(CancellationToken cancellationToken, string host, int port)
         {
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
             logger.Info($"Attempting to connect to {host}:{port}..");
             IsConnecting = true;
             try
@@ -228,7 +232,7 @@ namespace BifrostExtended
             logger.Info($"AutoReconnect Monitor started..");
             while (AutoReconnect && !clientCancellationToken.IsCancellationRequested)
             {
-                Thread.Sleep(3000);
+                Thread.Sleep(5000);
                 if (!IsConnected && !IsConnecting && AutoReconnect)
                 {
                     ConnectThread(clientCancellationToken, host, port);
