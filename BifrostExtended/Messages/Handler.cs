@@ -89,6 +89,11 @@ namespace BifrostExtended.Messages
 
             var callback = GetServerMessageHandler(t);
 
+            if (callback == null)
+            {
+                logger.Error("HandleServerMessage error; callback is null");
+            }
+
             callback.DynamicInvoke(parameters.ToArray());
         }
 

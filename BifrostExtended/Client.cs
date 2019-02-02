@@ -179,7 +179,7 @@ namespace BifrostExtended
                 logger.Warn($"Handshake failed with type {result.Type}");
                 IsConnecting = false;
                 IsConnected = false; ;
-                OnClientConnectionChange?.Invoke(this, false);
+                Utilities.RaiseEventOnUIThread(OnClientConnectionChange, this, false);
                 return;
             }
             else
@@ -187,13 +187,14 @@ namespace BifrostExtended
                 logger.Debug($"Handshake was successful!");
                 IsConnecting = false;
                 IsConnected = true;
-                OnClientConnectionChange?.Invoke(this, true);
+
+                Utilities.RaiseEventOnUIThread(OnClientConnectionChange, this, true);
             }
         }
 
         private Delegate EventSink_OnLogEvent(string log)
         {
-            OnLogEvent?.Invoke(log);
+            Utilities.RaiseEventOnUIThread(OnLogEvent, log);
             return null;
         }
 
@@ -210,7 +211,8 @@ namespace BifrostExtended
             else
             {
                 logger.Warn("Unknown MessageType sent from Server: " + Encoding.UTF8.GetString(Store["type"]));
-                OnClientDataReceived?.Invoke(this, Store);
+                
+                Utilities.RaiseEventOnUIThread(OnClientDataReceived, this, Store);
             }
         }
 
@@ -218,7 +220,7 @@ namespace BifrostExtended
         {
             IsConnected = false;
             IsConnecting = false;
-            OnClientConnectionChange?.Invoke(this, false);
+            Utilities.RaiseEventOnUIThread(OnClientConnectionChange, this, false);
         }
 
         private void ReconnectMonitor(CancellationToken clientCancellationToken, string host, int port)

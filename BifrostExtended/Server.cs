@@ -264,7 +264,7 @@ namespace BifrostExtended
 
         private Delegate EventSink_OnLogEvent(string log)
         {
-            OnLogEvent?.Invoke(log);
+            Utilities.RaiseEventOnUIThread(OnLogEvent, log);
             return null;
         }
 
@@ -281,7 +281,7 @@ namespace BifrostExtended
             else
             {
                 logger.Warn("Unknown MessageType sent from Client: " + Encoding.UTF8.GetString(Store["type"]));
-                OnServerDataReceived?.Invoke(clientData, Store);
+                Utilities.RaiseEventOnUIThread(OnServerDataReceived, clientData, Store);
             }
         }
 
@@ -289,7 +289,7 @@ namespace BifrostExtended
         {
             ClientData cd = GetClientFromLink(link);
             cd.Connected = false;
-            OnUserDisconnected?.Invoke(cd);
+            Utilities.RaiseEventOnUIThread(OnUserDisconnected, cd);
             CleanupClient(cd);
         }
 
@@ -350,7 +350,8 @@ namespace BifrostExtended
                     }
                     Clients.Add(user);
                 }
-                OnUserConnected?.Invoke(user);
+
+                Utilities.RaiseEventOnUIThread(OnUserConnected, user);
             }
             else
             {
