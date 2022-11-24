@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace BifrostExtended
 {
@@ -27,6 +28,7 @@ namespace BifrostExtended
         public KeyData ClientKeys = new KeyData();
 
         public string ClientName = "";
+        public IPEndPoint remoteEndpoint;
         public bool Connected;
         public UserConnection Connection;
         public PrivilegeLevel PrivilegeLevel = PrivilegeLevel.Guest;
@@ -38,8 +40,9 @@ namespace BifrostExtended
             this.Connection = userConnection;
             this.TimeConnected = DateTime.Now;
             this.Connected = true;
-            ClientGuid = Guid.NewGuid().ToString();
-            ClientId = NextClientId;
+            this.ClientGuid = Guid.NewGuid().ToString();
+            this.ClientId = NextClientId;
+            this.remoteEndpoint = (IPEndPoint)userConnection.TcpClient.Client.RemoteEndPoint;
             NextClientId++;
         }
     }

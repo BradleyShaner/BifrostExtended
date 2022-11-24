@@ -95,7 +95,7 @@ namespace BifrostExtended
 
             Message message = new Message(MessageType.Data, 0x01);
             message.Store["type"] = Encoding.UTF8.GetBytes(t.Name);
-            message.Store["message"] = Encoding.UTF8.GetBytes(serialized);
+            message.Store["message"] = Utilities.Compress(Encoding.UTF8.GetBytes(serialized));
 
             try
             {
@@ -182,7 +182,7 @@ namespace BifrostExtended
             {
                 logger.Warn($"Handshake failed with type {result.Type}");
                 IsConnecting = false;
-                IsConnected = false; ;
+                IsConnected = false;
                 Utilities.RaiseEventOnUIThread(OnClientConnectionChange, this, false);
                 return;
             }
@@ -204,12 +204,10 @@ namespace BifrostExtended
 
         private void Link_OnDataReceived(EncryptedLink link, Dictionary<string, byte[]> Store)
         {
-            logger.Debug($"Link_OnDataReceived!");
-
             // If the store contains a Message type..
             if (Store.ContainsKey("type") && Handler.GetClientMessageType(Encoding.UTF8.GetString(Store["type"])) != null)
             {
-                IMessage message = Messages.Handler.ConvertClientPacketToMessage(Store["type"], Store["message"]);
+                IMessage message = Messages.Handler.ConvertClientPacketToMessage(Store["type"], Utilities.Decompress(Store["message"]));
                 Handler.HandleClientMessage(this, message);
             }
             else

@@ -89,7 +89,7 @@ namespace BifrostExtended
 
             Message message = new Message(MessageType.Data, 0x01);
             message.Store["type"] = Encoding.UTF8.GetBytes(t.Name);
-            message.Store["message"] = Encoding.UTF8.GetBytes(serialized);
+            message.Store["message"] = Utilities.Compress(Encoding.UTF8.GetBytes(serialized));
 
             lock (_UserListLock)
             {
@@ -168,7 +168,7 @@ namespace BifrostExtended
 
             Message message = new Message(MessageType.Data, 0x01);
             message.Store["type"] = Encoding.UTF8.GetBytes(t.Name);
-            message.Store["message"] = Encoding.UTF8.GetBytes(serialized);
+            message.Store["message"] = Utilities.Compress(Encoding.UTF8.GetBytes(serialized));
 
             try
             {
@@ -272,10 +272,17 @@ namespace BifrostExtended
         {
             ClientData clientData = GetClientFromLink(link);
 
+            if (clientData == null)
+            {
+                logger.Warn($"clientData null");
+                return;
+            }
+
             // If the store contains a Message type..
             if (Store.ContainsKey("type") && Handler.GetServerMessageType(Encoding.UTF8.GetString(Store["type"])) != null)
             {
-                IMessage message = Messages.Handler.ConvertServerPacketToMessage(Store["type"], Store["message"]);
+                logger.Info($"Incoming compressed packet: {Store["message"].Length} bytes");
+                IMessage message = Messages.Handler.ConvertServerPacketToMessage(Store["type"], Utilities.Decompress(Store["message"]));
                 Handler.HandleServerMessage(clientData, message);
             }
             else
@@ -288,9 +295,13 @@ namespace BifrostExtended
         private void Link_OnLinkClosed(EncryptedLink link)
         {
             ClientData cd = GetClientFromLink(link);
-            cd.Connected = false;
-            Utilities.RaiseEventOnUIThread(OnUserDisconnected, cd);
-            CleanupClient(cd);
+
+            if (cd != null)
+            {
+                cd.Connected = false;
+                Utilities.RaiseEventOnUIThread(OnUserDisconnected, cd);
+                CleanupClient(cd);
+            }
         }
 
         private void ProcessClient(object argument)
@@ -327,20 +338,18 @@ namespace BifrostExtended
             link.OnDataReceived += Link_OnDataReceived;
             link.OnLinkClosed += Link_OnLinkClosed;
 
+            var connection = new UserConnection(client, serverLink: link);
+            var user = new ClientData(connection);
+            user.ClientKeys.ServerCertificateAuthority = ca;
+            user.ClientKeys.PrivateKey = priv;
+            user.ClientKeys.SignKey = sign;
+
             logger.Debug($"Performing handshake with client..");
             var result = link.PerformHandshake();
 
             if (result.Type == HandshakeResultType.Successful)
             {
-                logger.Debug($"Handshake was a success!");
-                var connection = new UserConnection(client, serverLink: link);
-                var user = new ClientData(connection);
-                user.ClientKeys.ServerCertificateAuthority = ca;
-                user.ClientKeys.PrivateKey = priv;
-                user.ClientKeys.SignKey = sign;
-                // for use after handshake and when remembering clientCa (unimplemented)
-                //user.Client.ClientKeys.ClientCertificateAuthority = clientCa;
-
+                
                 lock (_UserListLock)
                 {
                     if (Clients.Count + 1 > MaxConnections)
@@ -351,6 +360,7 @@ namespace BifrostExtended
                     Clients.Add(user);
                 }
 
+                logger.Debug($"Handshake was a success!");
                 Utilities.RaiseEventOnUIThread(OnUserConnected, user);
             }
             else

@@ -10,7 +10,7 @@ namespace BifrostExtended.Messages
     {
         private static Logger logger = Bifrost.LogManager.GetCurrentClassLogger();
 
-        private static Dictionary<string, Action<Client, IMessage>> registeredMessageHandlers = new Dictionary<string, Action<Client, IMessage>>();
+        private static Dictionary<string, Action<Client, IMessage>> registeredClientMessageHandlers = new Dictionary<string, Action<Client, IMessage>>();
         private static Dictionary<string, Type> registeredMessageTypes = new Dictionary<string, Type>();
         private static Dictionary<string, Action<ClientData, IMessage>> registeredServerMessageHandlers = new Dictionary<string, Action<ClientData, IMessage>>();
 
@@ -41,6 +41,7 @@ namespace BifrostExtended.Messages
 
             try
             {
+                logger.Info($"Processing incoming {messageType.Name}: {packet.Length} bytes");
                 message = (IMessage)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(packet), messageType);
             }
             catch (Exception ex)
@@ -78,12 +79,18 @@ namespace BifrostExtended.Messages
 
             var callback = GetClientMessageHandler(t);
 
-            callback.DynamicInvoke(parameters.ToArray());
+            try { 
+                callback.DynamicInvoke(parameters.ToArray());
+            }
+            catch (Exception ex) { logger.Error(ex, "HandleClientMessage: " + t.Name); }
         }
 
         public static void HandleServerMessage(ClientData clientData, IMessage message)
         {
             List<object> parameters = new List<object>() { clientData, message };
+
+            if (message == null)
+                logger.Error("message was null");
 
             Type t = message.GetType();
 
@@ -93,14 +100,17 @@ namespace BifrostExtended.Messages
             {
                 logger.Error("HandleServerMessage error; callback is null");
             }
-
-            callback.DynamicInvoke(parameters.ToArray());
+            try
+            {
+                callback.DynamicInvoke(parameters.ToArray());
+            }
+            catch (Exception ex) { logger.Error(ex, "HandleServerMessage: " + t.Name); }
         }
 
         public static void RegisterClientMessageType(Type messageIdentifier, Action<Client, IMessage> callbackMethod)
         {
             registeredMessageTypes.Add($"Client.{messageIdentifier.Name}", messageIdentifier);
-            registeredMessageHandlers.Add($"Client.{messageIdentifier.Name}", callbackMethod);
+            registeredClientMessageHandlers.Add($"Client.{messageIdentifier.Name}", callbackMethod);
         }
 
         public static void RegisterServerMessageType(Type messageIdentifier, Action<ClientData, IMessage> callbackMethod)
@@ -114,8 +124,8 @@ namespace BifrostExtended.Messages
             if (registeredMessageTypes.ContainsKey($"Client.{messageIdentifier.Name}"))
                 registeredMessageTypes.Remove($"Client.{messageIdentifier.Name}");
 
-            if (registeredMessageHandlers.ContainsKey($"Client.{messageIdentifier.Name}"))
-                registeredMessageHandlers.Remove($"Client.{messageIdentifier.Name}");
+            if (registeredClientMessageHandlers.ContainsKey($"Client.{messageIdentifier.Name}"))
+                registeredClientMessageHandlers.Remove($"Client.{messageIdentifier.Name}");
         }
 
         public static void UnregisterServerMessageType(Type messageIdentifier)
@@ -123,14 +133,14 @@ namespace BifrostExtended.Messages
             if (registeredMessageTypes.ContainsKey($"Server.{messageIdentifier.Name}"))
                 registeredMessageTypes.Remove($"Server.{messageIdentifier.Name}");
 
-            if (registeredMessageHandlers.ContainsKey($"Server.{messageIdentifier.Name}"))
-                registeredMessageHandlers.Remove($"Server.{messageIdentifier.Name}");
+            if (registeredClientMessageHandlers.ContainsKey($"Server.{messageIdentifier.Name}"))
+                registeredClientMessageHandlers.Remove($"Server.{messageIdentifier.Name}");
         }
 
         private static Action<Client, IMessage> GetClientMessageHandler(Type messageIdentifier)
         {
-            if (registeredMessageHandlers.ContainsKey($"Client.{messageIdentifier.Name}"))
-                return registeredMessageHandlers[$"Client.{messageIdentifier.Name}"];
+            if (registeredClientMessageHandlers.ContainsKey($"Client.{messageIdentifier.Name}"))
+                return registeredClientMessageHandlers[$"Client.{messageIdentifier.Name}"];
 
             return null;
         }
